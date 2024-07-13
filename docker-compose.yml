@@ -1,0 +1,69 @@
+version: '3.7'
+services:
+  java-srv:
+    build:
+      context: java-srv
+    ports:
+      - "80:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      #db2:
+      #  condition: service_healthy
+      #  restart: true
+      db3:
+        condition: service_healthy
+        restart: true
+    links:
+      - "db:db"
+
+  db:
+    image: yugabytedb/yugabyte
+    healthcheck:
+      test: pwd || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    ports:
+      - 7000 
+      - 9000
+      - 5433
+    command: yugabyted start --daemon=false
+  
+#  db2:
+#    image: yugabytedb/yugabyte
+#    healthcheck:
+#      test: pwd || exit 1
+#      interval: 10s
+#      retries: 5
+#      start_period: 20s
+#      timeout: 10s
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#        restart: true
+#    ports:
+#      - 7000 
+#      - 9000
+#      - 5433
+#    command: yugabyted start --daemon=false --join=db
+  
+  db3:
+    image: yugabytedb/yugabyte
+    healthcheck:
+      test: pwd || exit 1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    ports:
+      - 7000 
+      - 9000
+      - 5433
+    command: yugabyted start --daemon=false --join=db
